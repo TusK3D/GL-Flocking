@@ -1,0 +1,8 @@
+#include "include/container.h"
+
+container::container()
+{
+  m_bbox = new ngl::BBox(ngl::Vec3(0,0,0),80,80,80);
+
+  m_bbox->setDrawMode(GL_LINE);
+}

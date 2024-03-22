@@ -1,0 +1,172 @@
+#include "include/Flocking.h"
+#include <boost/foreach.hpp>
+
+
+const static int s_extents=40;
+
+
+Flocking::Flocking(GLint _numBoids)
+{
+  m_boidCount=_numBoids;
+  m_boidArray.resize(m_boidCount);
+  createBoidFlock(m_boidCount);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+void Flocking::createBoidFlock(GLint _boidCount)
+{
+  m_boidArray.erase(m_boidArray.begin(),m_boidArray.end());
+  ngl::Vec3 pos(4,4,4);
+  ngl::Vec3 dir(0,0,0);
+  ngl::Vec3 vel(2,2,2);
+  // loop and create the initial particle list
+  for(GLint i=0; i<_boidCount; ++i)
+  {
+
+    vel=rng->getRandomVec3()*.2;
+    dir.m_x=0.0f;
+    dir.m_y=atan2(vel.m_z, vel.m_x)* (180.0 / ngl::PI);
+    dir.m_z=asin(vel.m_y / vel.length()) * (180.0 / ngl::PI);
+    // add the boids to the end of the particle list
+    m_boidArray.push_back(Boid(i,rng->getRandomPoint(s_extents,s_extents,s_extents),dir,.4,vel));
+  }
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+void Flocking::addBoidFlock(ngl::Vec3 _pos = 4, ngl::Vec3 _vel = .2, ngl::Vec3 _radius = .4)
+{
+
+
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+
+void Flocking::deleteBoids()
+{
+    std::vector<Boid>::iterator end=m_boidArray.end();
+  if(--m_boidCount==0)
+  {
+    m_boidCount=1;
+  }
+  else
+  {
+    m_boidArray.erase(end-1,end);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void Flocking::update(Boid &_focusBoid)
+{
+
+//    std::cout<<"the number of neighbours for the boid are"<<this->m_neighbourcount<<std::endl;
+
+  //    checkCollisions();
+
+
+
+}
+
+//------------------------------------------------------------------------------------------------
+
+void Flocking::updateFlock(const ngl::Obj &_mesh, const std::string &_shaderName,ngl::TransformStack &_transformStack, ngl::Camera *_cam)
+{
+  BOOST_FOREACH(Boid &b, m_boidArray)
+  {
+
+    m_separation=behaviour(b);
+    b.applyforce(m_separation);
+    b.move();
+    b.rotate();
+    b.draw(_mesh,_shaderName,_transformStack,_cam);
+
+  }
+}
+
+//--------------------------------------------------------------------------------------------
+
+ngl::Vec3 Flocking::behaviour( Boid &_focusBoid)
+{
+    ngl::Vec3 _force;
+    ngl::Vec3 _sum=0;
+    ngl::Vec3 _separation;
+    float _alignDist = 50;
+    ngl::Vec3 _alignment;
+    ngl::Vec3 _velSum;
+    ngl::Vec3 _cohesion;
+    ngl::Vec3 _posSum;
+    ngl::Vec3 _desiredLoc;
+
+    /*
+    /// Modified from :-
+    /// Daniel Shiffman (2012). Nature of code Chapter 6.Autonomous Agents [online].
+    /// [Accessed 2012]. Available from: <http://natureofcode.com/book/chapter-6-autonomous-agents/>.
+    */
+    _force=0;
+    int x,y,z=0;
+    _focusBoid.getGridAddress(x,y,z);
+    GLint _neighbourCount = 0;
+    _neighbourCount = m_myNeighbours[x][y][z].m_neighbourCount;
+
+    if(_neighbourCount != 0)
+    {
+      for(int i=0;i<_neighbourCount && i<m_boidCount*.05 ;i++)
+      {
+        Boid *_neighbourBoid = m_myNeighbours[x][y][z].m_inCurrentBlock[i];
+        if((_neighbourBoid->getBoidID()) != _focusBoid.getBoidID())
+        {
+          float radiussq = ((_focusBoid.getRadius()*4)*(_focusBoid.getRadius()*4))+1;
+          ngl::Vec3 _dist = _focusBoid.getPos() - _neighbourBoid->getPos();
+          GLfloat diff = m_math->lengthSquared(_dist);
+          if(diff<_alignDist)
+          {
+            //alignement
+            _velSum+= _neighbourBoid->getVel();
+            _velSum = _velSum/_neighbourCount;
+            _velSum.normalize();
+            _velSum*_focusBoid.getmaxspeed();
+            _alignment=_velSum-_focusBoid.getVel();
+            //cohesion
+            _posSum+=_neighbourBoid->getPos();
+            _posSum=_posSum/_neighbourCount;
+            _desiredLoc=_posSum-_focusBoid.getPos();
+            _desiredLoc.normalize();
+            _desiredLoc=_desiredLoc*_focusBoid.getmaxspeed();
+            _cohesion = _desiredLoc-_focusBoid.getVel();
+            //separation
+            if(diff<radiussq)
+            {
+              ngl::Vec3 _distNorm = _dist;
+              _distNorm.normalize();
+              _distNorm= _distNorm/_dist;
+              _sum+=_distNorm;
+              _sum=_sum/(_neighbourCount);
+              _sum.normalize();
+              _sum*_focusBoid.getmaxspeed();
+              _separation = _sum - _focusBoid.getVel();
+            }
+            ///end of citation
+            _force = (_alignment*(_focusBoid.getAlignFactor()/100))+(_cohesion*(_focusBoid.getCohesionFactor()/100))
+                                        +(_separation*(_focusBoid.getSepFactor()/10000));
+            return _force;
+
+          }
+        }
+        else
+          i++;
+      }
+
+        return _force;
+    }
+    else
+    {
+      return _force;
+    }
+}

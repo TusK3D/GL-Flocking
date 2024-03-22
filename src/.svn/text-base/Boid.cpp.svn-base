@@ -1,0 +1,150 @@
+#include "include/Boid.h"
+#include <ngl/VAOPrimitives.h>
+#include <cmath>
+#include <math.h>
+
+
+Boid::Boid(
+                GLint _ID,
+                ngl::Vec3 _pos,
+                ngl::Vec3 _dir,
+                GLfloat _rad,
+                ngl::Vec3 _velocity)
+{
+  // set values from params
+  m_boidID=_ID;
+  m_pos=_pos;
+  m_dir=_dir;
+  m_velocity=_velocity;
+  m_radius=_rad;
+  m_hit=false;
+  m_accel=0.0;
+  m_maxspeed=.2f;
+  m_maxaccel=.4f;
+
+}
+
+Boid::Boid()
+{
+	m_hit=false;
+}
+
+
+void Boid::loadMatricesToShader(
+                                     ngl::TransformStack &_tx,
+                                     ngl::Camera *_cam
+                                   ) const
+{
+  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+
+  ngl::Mat4 MV;
+  ngl::Mat4 MVP;
+  ngl::Mat3 normalMatrix;
+  ngl::Mat4 M;
+  M=_tx.getCurrentTransform().getMatrix();
+  MV=_tx.getCurrAndGlobal().getMatrix()*_cam->getViewMatrix() ;
+  MVP=MV*_cam->getProjectionMatrix();
+  normalMatrix=MV;
+  normalMatrix.inverse();
+  shader->setShaderParamFromMat4("MV",MV);
+  shader->setShaderParamFromMat4("MVP",MVP);
+  shader->setShaderParamFromMat3("normalMatrix",normalMatrix);
+  shader->setShaderParamFromMat4("M",M);
+}
+
+void Boid::draw(
+                  const ngl::Obj &_mesh,
+                   const std::string &_shaderName,
+                   ngl::TransformStack &_transformStack,
+                   ngl::Camera *_cam
+                 )const
+{
+
+//  // draw wireframe if hit
+//  if(m_hit)
+//  {
+//    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+//  }
+//  else
+//  {
+//    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+//  }
+
+
+  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+  shader->use(_shaderName);
+  // grab an instance of the primitives for drawing
+//  ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
+
+  _transformStack.pushTransform();
+  {
+
+    _transformStack.setPosition(m_pos);
+    _transformStack.setScale(m_radius,m_radius,m_radius);
+    _transformStack.setRotation(m_dir.m_x,m_dir.m_y,0);
+    loadMatricesToShader(_transformStack,_cam);
+//    prim->draw("cone");
+//    prim->draw("sphere");
+      _mesh.draw();
+
+  } // and before a pop
+   _transformStack.popTransform();
+
+glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+}
+
+
+
+
+void Boid::applyforce(ngl::Vec3 const &_force)
+{
+  if ( (m_maxaccel*m_maxaccel) < math->lengthSquared(_force))
+  {
+    m_accel=_force*m_maxaccel;
+  }
+  else
+    m_accel = _force;
+}
+
+void Boid::move()
+{
+  // store the last position
+  m_lastPos=m_pos;
+  //update the velocity vector to accelerate in a particular direction
+  m_velocity+=m_accel;
+  float _curSpeedsq = math->lengthSquared(m_velocity);
+  float _maxSpeedSq = m_maxspeed*m_maxspeed;
+  if (_curSpeedsq>_maxSpeedSq)
+  {
+    m_velocity.normalize();
+    m_velocity*=m_maxspeed;
+  }  // update the current position
+
+  m_pos+=m_velocity;
+  // get the next position
+  m_nextPos=m_pos+m_velocity;
+
+  m_hit=false;
+  //reset the acceleration to zero
+  m_accel = 0.0;
+}
+
+void Boid::rotate()
+{
+    ngl::Vec3 T;
+    ngl::Vec3 T_norm;
+    ngl::Vec3 L;
+    ngl::Vec3 L_norm;
+    /// The following section is from :-
+    /// Christopher John Kline (1996). [Accessed 2010].
+    /// Available from: <http://www.behaviorworks.com/people/ckline/boids>.
+    //Calculate Pitch
+    m_dir.m_x = -atan(m_velocity.m_y /
+      sqrt(m_velocity.m_z*m_velocity.m_z
+           + m_velocity.m_x*m_velocity.m_x)) * (180.0 / ngl::PI);
+    //calculate yaw
+    m_dir.m_y = atan2(m_velocity.m_x, m_velocity.m_z) * (180.0 / ngl::PI);
+    ///end of citation
+
+}
+

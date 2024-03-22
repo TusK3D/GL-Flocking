@@ -1,0 +1,13 @@
+#ifndef CONTAINER_H
+#define CONTAINER_H
+
+#include <ngl/Vec3.h>
+
+class container
+{
+public:
+  container(ngl::Vec3 )
+
+};
+
+#endif // CONTAINER_H

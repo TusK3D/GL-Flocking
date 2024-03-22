@@ -1,0 +1,61 @@
+#ifndef CONTAINER_H
+#define CONTAINER_H
+
+#include <ngl/Vec3.h>
+#include <ngl/BBox.h>
+#include "include/Flocking.h"
+#include "Boid.h"
+
+
+class DivideSpace
+{
+public:
+  DivideSpace(ngl::Vec3 &_radius,ngl::Vec3 &_dimensions);
+  DivideSpace(){}
+  void createBBox();
+  void drawBBox(){m_bbox->draw();}
+  void registerBoidGrid(Flocking &_mFlock);
+  ngl::Vec3 const getCentre(){return m_radius;}
+//  ngl::Vec3 const getDimensions(){return m_dimensions;}
+  /// @brief check the collisions
+  //----------------------------------------------------------------------------------------------------------------------
+
+
+private :
+  ngl::Vec3 m_radius;
+  int m_dimensionsX,m_dimensionsY,m_dimensionsZ;
+  ngl::BBox *m_bbox;
+  int m_rows;
+  int m_cols;
+  int m_depth;
+  int m_div;
+  void checkCollisions();
+  Boid *m_curBoid;
+  GLint gridOffsetX,gridOffsetY,gridOffsetZ; 
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief do the actual sphereSphere collisions
+  /// @param[in] _pos1 the position of the first sphere
+  ///	@param[in] _radius1 the radius of the first sphere
+  /// @param[in] _pos2 the position of the second sphere
+  ///	@param[in] _radius2 the radius of the second sphere
+  //----------------------------------------------------------------------------------------------------------------------
+
+  bool BoidBoidCollision(
+                             ngl::Vec3 _pos1,
+                             GLfloat _radius1,
+                             ngl::Vec3 _pos2,
+                             GLfloat _radius2
+                            );
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief check the bounding box collisions
+  //----------------------------------------------------------------------------------------------------------------------
+  void BBoxCollision();
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief check the sphere collisions
+  //----------------------------------------------------------------------------------------------------------------------
+
+  void checkSphereCollisions();
+  //----------------------------------------------------------------------------------------------------------------------
+};
+
+#endif // CONTAINER_H

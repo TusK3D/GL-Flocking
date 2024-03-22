@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/mastersbmth/!svn/ver/2/shaders
+END
+Phong.fs
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/mastersbmth/!svn/ver/2/shaders/Phong.fs
+END
+Phong.vs
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/mastersbmth/!svn/ver/2/shaders/Phong.vs
+END
+Vertex.vs
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/mastersbmth/!svn/ver/2/shaders/Vertex.vs
+END
+Colour.fs
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/mastersbmth/!svn/ver/2/shaders/Colour.fs
+END
+Colour.vs
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/mastersbmth/!svn/ver/2/shaders/Colour.vs
+END
+Fragment.fs
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/mastersbmth/!svn/ver/2/shaders/Fragment.fs
+END

@@ -1,0 +1,10 @@
+#ifndef BOIDSMALL_H
+#define BOIDSMALL_H
+
+class BoidSmall
+{
+public:
+  BoidSmall();
+};
+
+#endif // BOIDSMALL_H

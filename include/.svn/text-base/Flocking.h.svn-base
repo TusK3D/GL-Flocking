@@ -1,0 +1,62 @@
+#ifndef FLOCKING_H
+#define FLOCKING_H
+#include "include/Boid.h"
+#include "include/MyMath.h"
+
+class Flocking : public Boid
+{
+
+  public :
+  //constructor for creating boid flock
+  Flocking(GLint _numBoids);
+  Flocking(){std::cout<<"creating a flock"<<std::endl;}
+  ~Flocking(){}
+  //@brief this method is called by the world to update the Boid positions and
+  //do the collission detection
+  void updateFlock(const ngl::Obj &_mesh, const std::string &_shaderName, ngl::TransformStack &_transformStack, ngl::Camera *_cam);
+  inline GLint getBoidCount(){return m_boidCount;}
+  inline void setBoidCount(GLint _numBoids){m_boidCount=_numBoids;}
+  inline Boid returnIndexBoid(int _index){return m_boidArray[_index];}
+  inline Boid* getCurrentBoid(int _index){return &m_boidArray[_index];}
+  //initialise the boids
+  void createBoidFlock(GLint _boidCount);
+  struct neighbourList
+  {
+    int m_neighbourCount=0;
+    std::vector<Boid*> m_inCurrentBlock;
+  }m_myNeighbours[20][20][20];
+
+
+  private :
+  //create a vector to store boids in
+  std::vector<Boid> m_boidArray;
+  //total boids in the list
+  GLint m_boidCount;
+  //max memory reserved for neighbours
+  GLint m_maxNeighbours;
+  //values to store separation, alignment and cohesion
+  ngl::Vec3 m_separation;
+  //add boids to the flock
+  void addBoidFlock(ngl::Vec3 _pos,ngl::Vec3 _vel,ngl::Vec3 _radius);
+  //function to return a pointer to the neighbiurs and query the space alg for the data
+  void getneighbours (Boid const &_focusBoid);
+  //user max speed for flock
+  float *_flockUserMaxSpeed;
+  //initialize a random function call to the NGL library
+  ngl::Random *rng=ngl::Random::instance();
+  //calculate the steering force
+  ngl::Vec3 behaviour(Boid &_focusBoid);
+
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief this method is called once per frame to update the sphere positions
+  /// and do the collision detection
+  //----------------------------------------------------------------------------------------------------------------------
+  void update(Boid &_focusBoid);
+  //pointer to math class for custom math work
+  MyMath *m_math=new MyMath;
+
+  void deleteBoids();
+
+};
+
+#endif // FLOCKING_H

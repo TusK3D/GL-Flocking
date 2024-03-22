@@ -1,0 +1,10 @@
+#ifndef PREDATORBOID_H
+#define PREDATORBOID_H
+
+class PredatorBoid
+{
+public:
+  PredatorBoid();
+};
+
+#endif // PREDATORBOID_H

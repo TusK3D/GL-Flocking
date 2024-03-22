@@ -1,0 +1,16 @@
+#ifndef MYMATH_H
+#define MYMATH_H
+
+#include <ngl/Vec3.h>
+
+class MyMath
+{
+public:
+  MyMath();
+  ~MyMath();
+  GLfloat lengthSquared(ngl::Vec3 _value);
+  GLfloat mag(ngl::Vec3 _value);
+
+};
+
+#endif // MYMATH_H

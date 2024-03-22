@@ -1,0 +1,13 @@
+Radius 0.4
+Velocity 8.0 8.0 8.0
+Accel 0.0 0.0 0.0
+MaxSpeed .4
+SeparationFactor 1.0
+AlignmentFactor 1.0
+CohesionFactor 1.0
+PredatorMaxSpeedFactor 1.5
+Prey 1
+Shape 1
+
+// comments and nonsense
+

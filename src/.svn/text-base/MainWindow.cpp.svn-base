@@ -1,0 +1,46 @@
+#include "MainWindow.h"
+#include <ui_MainWindow.h>
+
+MainWindow::MainWindow(
+											 int _numSpheres,
+                       QWidget *_parent
+                      ):
+                        QMainWindow(_parent),
+                        m_ui(new Ui::MainWindow)
+{
+    m_ui->setupUi(this);
+    this->resize(QSize(1300,720));
+    m_gl = new World(_numSpheres,this);
+        m_ui->s_mainWindowGridLayout->addWidget(m_gl,0,0,4 ,1);
+        this->setWindowTitle(QString("Flocking System prototype_KewlaniTushar "));
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+
+void MainWindow::keyPressEvent(
+                               QKeyEvent *_event
+                              )
+{
+  // this method is called every time the main window recives a key event.
+  // we then switch on the key value and set the camera in the GLWindow
+  switch (_event->key())
+  {
+  case Qt::Key_Escape : QApplication::exit(EXIT_SUCCESS); break;
+  case Qt::Key_A : m_gl->toggleAnimation(); break;
+  case Qt::Key_F : showFullScreen(); break;
+  case Qt::Key_N : showNormal(); break;
+  default : break;
+  }
+  m_gl->keyPress(_event);
+	// finally update the GLWindow and re-draw
+  m_gl->updateGL();
+}
+
+void MainWindow::resizeEvent ( QResizeEvent * _event )
+{
+//  m_gl->resize(_event->size());
+}
+

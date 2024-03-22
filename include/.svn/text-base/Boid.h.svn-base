@@ -1,0 +1,119 @@
+#ifndef __SPHERE_H__
+#define __SPHERE_H__
+
+
+#include <ngl/Camera.h>
+#include <ngl/ShaderLib.h>
+#include <ngl/TransformStack.h>
+#include <ngl/Vec3.h>
+#include <ngl/Random.h>
+#include <ngl/Obj.h>
+#include <cmath>
+#include <math.h>
+#include <vector>
+#include <include/MyMath.h>
+
+
+/*! \brief a simple sphere class */
+class Boid
+{
+public :
+	/// @brief ctor
+	/// @param pos the position of the sphere
+	/// @param rad the radius of the sphere */
+    Boid(
+        GLint _ID,
+        ngl::Vec3 _pos,
+        ngl::Vec3 _dir,
+        GLfloat _rad,
+        ngl::Vec3 _velocity
+        );
+    Boid();
+    Boid(int i){}
+    ~Boid(){}
+  /// draw method
+  void draw(
+             const ngl::Obj &_mesh,
+             const std::string &_shaderName,
+             ngl::TransformStack &_transformStack, ngl::Camera *_cam
+            )const ;
+  void loadMatricesToShader(
+                             ngl::TransformStack &_tx,
+                             ngl::Camera *_cam
+                           )const;
+  inline void reverse(){m_velocity=m_velocity*-1.0;
+                         glRotatef(90,1,0,0);}
+	inline void setHit(){m_hit=true;}
+	inline void setNotHit(){m_hit=false;}
+	inline bool isHit()const {return m_hit;}
+  inline GLfloat getSepFactor()const {return m_sepFactor;}
+  inline GLfloat getCohesionFactor()const {return m_cohesionFactor;}
+  inline GLfloat getAlignFactor()const {return m_alignFactor;}
+  inline ngl::Vec3 getPos() const {return m_pos;}
+  inline ngl::Vec3 getVel() const {return m_velocity;}
+  inline ngl::Vec3 getNextPos() const {return m_nextPos;}
+  inline GLfloat getRadius() const {return m_radius;}
+  inline void setDirection(ngl::Vec3 _d){m_velocity=_d;}
+  inline ngl::Vec3 getDirection() const { return m_velocity;}
+  inline ngl::Vec3 getaccel() const {return m_accel;}
+  inline GLfloat getmaxspeed() const {return m_maxspeed;}
+  inline GLfloat getmaxaccel() const {return m_maxaccel;}
+  inline GLint getBoidID() const {return m_boidID;}
+  void applyforce(ngl::Vec3 const &_force);
+  inline void setGridAddress(const int &x,const int &y,const int &z){
+    m_gridAddress.m_x=x;  m_gridAddress.m_y=y; m_gridAddress.m_z=z;}
+
+  void getGridAddress(int &_gridX,int &_gridY,int &_gridZ)
+          {_gridX=m_gridAddress.m_x;_gridY=m_gridAddress.m_y;_gridZ=m_gridAddress.m_z;}
+  void updateBoid();
+  //update the current position of the boid
+  void move();
+  //apply the behaviour force on the Boid
+  //rotate the boid and orient to the world
+  void rotate();
+
+
+	/// set the sphere values
+	/// @param[in] _pos the position to set
+	/// @param[in] _dir the direction of the sphere
+	/// @param[in] _rad the radius of the sphere
+
+
+private :
+  //the unique ID for each boid
+  GLint m_boidID;
+  /*! the position of the boid */
+  ngl::Vec3 m_pos;
+  /*! the radius of the boid */
+  GLfloat m_radius;
+  /*! the velocity of the boid*/
+  ngl::Vec3 m_velocity;
+  /*! flag to indicate if the boid has been hit by ray */
+  bool m_hit;
+  //grid address of each boid
+  ngl::Vec3 m_gridAddress;
+  // the direction of the boid
+  ngl::Vec3 m_dir;
+  // the last position of the boid
+  ngl::Vec3 m_lastPos;
+  // the next position of the boid
+  ngl::Vec3 m_nextPos;
+  //the acceleration of the boid
+  ngl::Vec3 m_accel;
+  //max speed for the boid
+  GLfloat m_maxspeed;
+  //max accel of the boid to remove jerky movement
+  GLfloat m_maxaccel;
+  GLfloat m_sepFactor = 25.0f;
+  GLfloat m_alignFactor = 4.0f;
+  GLfloat m_cohesionFactor =1.0f;
+  //set a user factor for the max speed of boids
+  float m_userMaxSpeed = 1.0f;
+  //update the position and rotation of the boid per frame
+  MyMath *math = new MyMath;
+};
+
+
+
+
+#endif
